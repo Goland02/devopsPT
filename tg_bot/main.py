@@ -261,7 +261,7 @@ async def get_services(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def get_repl_logs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname=db_host, username=db_user, password=db_password, port=rm_port)
+    client.connect(hostname=rm_host, username=rm_user, password=rm_password, port=rm_port)
     stdin, stdout, stderr = client.exec_command('cat /var/log/postgresql/postgresql.log | grep -C 3 -i repl')
     data = stdout.read() + stderr.read()
     client.close()
