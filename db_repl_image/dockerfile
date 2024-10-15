@@ -1,0 +1,12 @@
+# Используем официальный образ PostgreSQL
+FROM postgres:15.8
+ENV POSTGRES_PASSWORD=123
+# Копируем скрипт для настройки репликации
+#COPY init_replication.sh /docker-entrypoint-initdb.d/
+
+
+
+
+# Указываем entrypoint и команду
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["postgres"]

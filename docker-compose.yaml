@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  bot:
+    image: 192.168.93.161:5000/bot_image
+    container_name: bot_container
+    networks:
+      - app-network
+    ports:
+      - "2222:22" # Для SSH доступа снаружи
+
+  db:
+    image: 192.168.93.161:5000/db_image
+    container_name: db_container
+    networks:
+      - app-network
+
+  db_repl:
+    image: 192.168.93.161:5000/db_repl_image
+    container_name: db_repl_container
+    networks:
+      - app-network
+    restart: always
+    depends_on:
+      - db
+
+networks:
+  app-network:
+    driver: bridge
