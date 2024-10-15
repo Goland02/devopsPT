@@ -1,29 +1,54 @@
-version: '3.8'
-
+version: "3"
 services:
   bot:
-    image: 192.168.93.161:5000/bot_image
-    container_name: bot_container
-    networks:
-      - app-network
-    ports:
-      - "2222:22" # Для SSH доступа снаружи
-
+    image: bot_image
+    build:
+      context: ./bot
+    environment:
+      - TOKEN=${TOKEN}
+      - RM_HOST=${RM_HOST}
+      - RM_PORT=${RM_PORT}
+      - RM_USER=${RM_USER}
+      - RM_PASSWORD=${RM_PASSWORD}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+    volumes:
+      - pg_logs:/var/log/
+    container_name: "bot"
   db:
-    image: 192.168.93.161:5000/db_image
-    container_name: db_container
-    networks:
-      - app-network
-
+    image: db_image
+    build:
+      context: ./db
+    volumes:
+      - pg_logs:/var/log/
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - DB_REPL_USER=${DB_REPL_USER}
+      - DB_REPL_PASSWORD=${DB_REPL_PASSWORD}
+      - DB_REPL_HOST=${DB_REPL_HOST}.mynet
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+    container_name: "${DB_HOST}"
   db_repl:
-    image: 192.168.93.161:5000/db_repl_image
-    container_name: db_repl_container
-    networks:
-      - app-network
-    restart: always
-    depends_on:
-      - db
-
+    image: db_repl_image
+    build:
+      context: ./db_repl
+    container_name: "${DB_REPL_HOST}"
+    environment:
+      - DB_HOST=${DB_HOST}.mynet
+      - DB_PORT=${DB_PORT}
+      - DB_REPL_HOST=${DB_REPL_HOST}
+      - DB_REPL_PORT=${DB_REPL_PORT}
+      - DB_REPL_USER=${DB_REPL_USER}
+      - POSTGRES_PASSWORD=${DB_REPL_PASSWORD}
+volumes:
+  pg_data:
+  pg_logs:
 networks:
-  app-network:
-    driver: bridge
+  default:
+    name: mynet
+    external: true

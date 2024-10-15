@@ -12,12 +12,6 @@ load_dotenv()
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ForceReply, Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters, ConversationHandler, CallbackQueryHandler, CallbackContext
 
-MAX_MESSAGE_LENGTH = 4096
-
-async def send_long_message(bot, chat_id: int, text: str) -> None:
-    """Отправка длинного сообщения, разбивая его на части."""
-    for i in range(0, len(text), MAX_MESSAGE_LENGTH):
-        await bot.send_message(chat_id=chat_id, text=text[i:i + MAX_MESSAGE_LENGTH])
 
 
 TOKEN = os.getenv("TOKEN")
@@ -32,10 +26,6 @@ db_host = os.getenv("DB_HOST")
 db_port = int(os.getenv("DB_PORT"))
 db_database = os.getenv("DB_DATABASE")
 
-db_repl_user = os.getenv("DB_REPL_USER")
-db_repl_password = os.getenv("DB_REPL_PASSWORD")
-db_repl_host = os.getenv("DB_REPL_HOST")
-db_repl_port = os.getenv("DB_REPL_PORT")
 
 # Enable logging
 logging.basicConfig(
@@ -47,6 +37,13 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 SEARCHING, CONFIRMING_EMAIL, CONFIRMING_NUMBER = range(3)
+
+MAX_MESSAGE_LENGTH = 4096
+
+async def send_long_message(bot, chat_id: int, text: str) -> None:
+    """Отправка длинного сообщения, разбивая его на части."""
+    for i in range(0, len(text), MAX_MESSAGE_LENGTH):
+        await bot.send_message(chat_id=chat_id, text=text[i:i + MAX_MESSAGE_LENGTH])
 
 # Define a few command handlers. These usually take the two arguments update and
 # context.
@@ -265,7 +262,7 @@ async def get_repl_logs(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=db_host, username=db_user, password=db_password, port=rm_port)
-    stdin, stdout, stderr = client.exec_command('cat "$(ls -t /var/lib/postgresql/data/log/ | head -n 1 | xargs -I {} echo /var/lib/postgresql/data/log/{})" | grep -C 3 -i replication')
+    stdin, stdout, stderr = client.exec_command('cat /var/log/postgresql/postgresql.log | grep -C 3 -i repl')
     data = stdout.read() + stderr.read()
     client.close()
     result = data.decode('utf-8')

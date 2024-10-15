@@ -1,7 +1,7 @@
 CREATE DATABASE tg_base;
 
 
-CREATE USER repl_user WITH REPLICATION ENCRYPTED PASSWORD '123';
+CREATE USER repl_user REPLICATION LOGIN PASSWORD '123';
 
 
 \c tg_base;
@@ -16,10 +16,3 @@ CREATE TABLE email (
     email VARCHAR(100) NOT NULL
 );
 
-ALTER SYSTEM SET archive_mode = 'on';
-ALTER SYSTEM SET max_wal_senders = '10';
-ALTER SYSTEM SET wal_log_hints = 'on';
-ALTER SYSTEM SET listen_addresses = '*';
-ALTER SYSTEM SET log_replication_commands = 'on';
-ALTER SYSTEM SET logging_collector = 'on';
-SELECT pg_reload_conf();
