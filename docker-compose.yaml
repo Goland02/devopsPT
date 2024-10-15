@@ -1,7 +1,7 @@
 version: "3"
 services:
   tg_bot:
-    image: bot_image
+    image: tg_bot
     build:
       context: ./tg_bot
     environment:
@@ -51,4 +51,3 @@ volumes:
 networks:
   default:
     name: mynet
-    external: true

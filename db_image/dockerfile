@@ -1,6 +1,7 @@
 FROM postgres:latest
 
 RUN apt-get update
+RUN apt-get install ssh -y
 RUN apt-get install gettext-base 
 
 COPY init.sql /docker-entrypoint-initdb.d/init.sql.raw
@@ -8,6 +9,10 @@ COPY init.sql /docker-entrypoint-initdb.d/init.sql.raw
 RUN mkdir -p /etc/postgresql
 RUN mkdir -p /oracle/pg_data/archive
 RUN chown postgres:postgres /oracle/pg_data/archive 
+
+RUN mkdir -p /var/run/sshd
+RUN chmod 700 /var/run/sshd
+RUN echo 'root:123' | chpasswd
 
 # Записываем конфиги и запускаем скрипт инициализации контейнера docker-entrypoint
 ENTRYPOINT [ "bash", "-c", "\
